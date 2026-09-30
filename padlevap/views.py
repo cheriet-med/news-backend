@@ -352,7 +352,7 @@ class PostGlobal(mixins.ListModelMixin,
                 queryset = Post.objects.all()
                 serializer_class = PostSerializer
                 filter_backends = [SearchFilter]
-                search_fields = ['title_en','title_ar','title_de','title_es','title_fr','title_it','title_nl','title_pt','title_ru','title_sv',
+                search_fields = ['user','category','title_en','title_ar','title_de','title_es','title_fr','title_it','title_nl','title_pt','title_ru','title_sv',
                 'url_en','url_ar','url_de','url_es','url_fr','url_it','url_nl','url_pt','url_ru','url_sv',
                  'description_en', 'description_ar','description_de','description_es','description_fr','description_it','description_nl','description_pt','description_ru','description_sv',
                  'content_en','content_ar','content_de','content_es','content_fr','content_it','content_nl','content_pt','content_ru','content_sv']

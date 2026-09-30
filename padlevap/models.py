@@ -88,6 +88,7 @@ class EmailLetter(models.Model):
 
 class Post(models.Model):
     user = models.CharField(max_length=1000,blank=True, null=True)
+    category = models.CharField(max_length=1000,blank=True, null=True)
     url_en = models.CharField(max_length=1000,blank=True, null=True)
     url_ar = models.CharField(max_length=1000,blank=True, null=True)
     url_de = models.CharField(max_length=1000,blank=True, null=True)
