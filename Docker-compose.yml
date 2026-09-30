@@ -20,13 +20,13 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=generated_default"
       # HTTP router - redirects to HTTPS
-      - "traefik.http.routers.django-http.rule=Host(`api.padlev.com`)"
+      - "traefik.http.routers.django-http.rule=Host(`newsapi.padlev.com`)"
       - "traefik.http.routers.django-http.entrypoints=web"
       - "traefik.http.routers.django-http.middlewares=https-redirect"
       # Middleware to redirect HTTP -> HTTPS
       - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
       # HTTPS router
-      - "traefik.http.routers.django.rule=Host(`api.padlev.com`)"
+      - "traefik.http.routers.django.rule=Host(`newsapi.padlev.com`)"
       - "traefik.http.routers.django.entrypoints=https"
       - "traefik.http.routers.django.tls=true"
       - "traefik.http.routers.django.tls.certresolver=default"
