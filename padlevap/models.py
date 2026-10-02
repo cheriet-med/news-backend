@@ -4,6 +4,10 @@ from django.conf import settings
 from django.utils import timezone
 import uuid
 
+from .util.slugs import make_slug
+from .util.images import convert_to_avif
+
+
 class UserAccountManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -25,6 +29,8 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_team = models.BooleanField(default=False)
+    image = models.ImageField(upload_to='images/', blank=True, null=True)
+    description = models.CharField(max_length=10000, blank=True, null=True)
     full_name = models.CharField(max_length=1000, blank=True, null=True)
     address_line_1 = models.CharField(max_length=1000, blank=True, null=True)
     address_line_2 = models.CharField(max_length=1000, blank=True, null=True)
@@ -99,6 +105,7 @@ class Post(models.Model):
     url_pt = models.CharField(max_length=1000,blank=True, null=True)
     url_ru = models.CharField(max_length=1000,blank=True, null=True)
     url_sv = models.CharField(max_length=1000,blank=True, null=True)
+    url_kab = models.CharField(max_length=1000,blank=True, null=True)
     image_en = models.ImageField(upload_to='images/', blank=True, null=True)
     image_ar = models.ImageField(upload_to='images/', blank=True, null=True)
     image_de = models.ImageField(upload_to='images/', blank=True, null=True)
@@ -109,6 +116,7 @@ class Post(models.Model):
     image_pt = models.ImageField(upload_to='images/', blank=True, null=True)
     image_ru = models.ImageField(upload_to='images/', blank=True, null=True)
     image_sv = models.ImageField(upload_to='images/', blank=True, null=True)
+    image_kab = models.ImageField(upload_to='images/', blank=True, null=True)
     tag_en = models.CharField(max_length=1000,blank=True, null=True)
     tag_ar = models.CharField(max_length=1000,blank=True, null=True)
     tag_de = models.CharField(max_length=1000,blank=True, null=True)
@@ -119,6 +127,7 @@ class Post(models.Model):
     tag_pt = models.CharField(max_length=1000,blank=True, null=True)
     tag_ru = models.CharField(max_length=1000,blank=True, null=True)
     tag_sv = models.CharField(max_length=1000,blank=True, null=True)
+    tag_kab = models.CharField(max_length=1000,blank=True, null=True)
     title_en = models.CharField(max_length=1000,blank=True, null=True)
     title_ar = models.CharField(max_length=1000,blank=True, null=True)
     title_de = models.CharField(max_length=1000,blank=True, null=True)
@@ -129,6 +138,7 @@ class Post(models.Model):
     title_pt = models.CharField(max_length=1000,blank=True, null=True)
     title_ru = models.CharField(max_length=1000,blank=True, null=True)
     title_sv = models.CharField(max_length=1000,blank=True, null=True)
+    title_kab = models.CharField(max_length=1000,blank=True, null=True)
     description_en = models.CharField(max_length=1000,blank=True, null=True)
     description_ar = models.CharField(max_length=1000,blank=True, null=True)
     description_de = models.CharField(max_length=1000,blank=True, null=True)
@@ -139,6 +149,7 @@ class Post(models.Model):
     description_pt = models.CharField(max_length=1000,blank=True, null=True)
     description_ru = models.CharField(max_length=1000,blank=True, null=True)
     description_sv = models.CharField(max_length=1000,blank=True, null=True)
+    description_kab = models.CharField(max_length=1000,blank=True, null=True)
     content_en = models.CharField(max_length=10000,blank=True, null=True)
     content_ar = models.CharField(max_length=10000,blank=True, null=True)
     content_de = models.CharField(max_length=10000,blank=True, null=True)
@@ -149,6 +160,7 @@ class Post(models.Model):
     content_pt = models.CharField(max_length=10000,blank=True, null=True)
     content_ru = models.CharField(max_length=10000,blank=True, null=True)
     content_sv = models.CharField(max_length=10000,blank=True, null=True)
+    content_kab = models.CharField(max_length=10000,blank=True, null=True)
     date = models.CharField(max_length=500,blank=True, null=True)
     time = models.CharField(max_length=500,blank=True, null=True)
     licence = models.CharField(max_length=10000,blank=True, null=True)
@@ -162,6 +174,7 @@ class Post(models.Model):
     keyword_1_pt = models.CharField(max_length=1000,blank=True, null=True)
     keyword_1_ru = models.CharField(max_length=1000,blank=True, null=True)
     keyword_1_sv = models.CharField(max_length=1000,blank=True, null=True)
+    keyword_1_kab = models.CharField(max_length=1000,blank=True, null=True)
     keyword_2_en = models.CharField(max_length=1000,blank=True, null=True)
     keyword_2_ar = models.CharField(max_length=1000,blank=True, null=True)
     keyword_2_de = models.CharField(max_length=1000,blank=True, null=True)
@@ -172,6 +185,7 @@ class Post(models.Model):
     keyword_2_pt = models.CharField(max_length=1000,blank=True, null=True)
     keyword_2_ru = models.CharField(max_length=1000,blank=True, null=True)
     keyword_2_sv = models.CharField(max_length=1000,blank=True, null=True)
+    keyword_2_kab = models.CharField(max_length=1000,blank=True, null=True)
     keyword_3_en = models.CharField(max_length=1000,blank=True, null=True)
     keyword_3_ar = models.CharField(max_length=1000,blank=True, null=True)
     keyword_3_de = models.CharField(max_length=1000,blank=True, null=True)
@@ -182,6 +196,7 @@ class Post(models.Model):
     keyword_3_pt = models.CharField(max_length=1000,blank=True, null=True)
     keyword_3_ru = models.CharField(max_length=1000,blank=True, null=True)
     keyword_3_sv = models.CharField(max_length=1000,blank=True, null=True)
+    keyword_3_kab = models.CharField(max_length=1000,blank=True, null=True)
     keyword_4_en = models.CharField(max_length=1000,blank=True, null=True)
     keyword_4_ar = models.CharField(max_length=1000,blank=True, null=True)
     keyword_4_de = models.CharField(max_length=1000,blank=True, null=True)
@@ -192,6 +207,7 @@ class Post(models.Model):
     keyword_4_pt = models.CharField(max_length=1000,blank=True, null=True)
     keyword_4_ru = models.CharField(max_length=1000,blank=True, null=True)
     keyword_4_sv = models.CharField(max_length=1000,blank=True, null=True)
+    keyword_4_kab = models.CharField(max_length=1000,blank=True, null=True)
     keyword_5_en = models.CharField(max_length=1000,blank=True, null=True)
     keyword_5_ar = models.CharField(max_length=1000,blank=True, null=True)
     keyword_5_de = models.CharField(max_length=1000,blank=True, null=True)
@@ -202,10 +218,30 @@ class Post(models.Model):
     keyword_5_pt = models.CharField(max_length=1000,blank=True, null=True)
     keyword_5_ru = models.CharField(max_length=1000,blank=True, null=True)
     keyword_5_sv = models.CharField(max_length=1000,blank=True, null=True)
+    keyword_5_kab = models.CharField(max_length=1000,blank=True, null=True)
     created_at_meta = models.CharField(max_length=50, blank=True)
     updated_at_meta = models.CharField(max_length=50, blank=True)
 
+
+    def _auto_slugs(self):
+        for lang in self.SLUG_LANGS:
+            title_val = getattr(self, f"title_{lang}", None)
+            url_field = f"url_{lang}"
+            if title_val and not getattr(self, url_field, None):
+                setattr(self, url_field, make_slug(title_val))
+
+    def _auto_avif(self):
+        if self.image and not self.image.name.lower().endswith(".avif"):
+            try:
+                self.image = convert_to_avif(self.image)
+            except Exception as e:
+                logger.warning("convert_to_avif failed: %s", e)
+
+
+
     def save(self, *args, **kwargs):
+        self._auto_avif()
+        self._auto_slugs()
         now = timezone.now().isoformat()
         if not self.created_at_meta:
             self.created_at_meta = now

@@ -13,14 +13,14 @@ class UserCreateSerializer(BaseUserCreateSerializer):
 class InformationsSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserAccount
-        fields = ('id','full_name', 'address_line_1', 'address_line_2', 'city', 'state', 'postalCode', 'countryCode', 'phoneNumber', 'status')
+        fields = ('id','full_name', 'address_line_1','image', 'description', 'address_line_2', 'city', 'state', 'postalCode', 'countryCode', 'phoneNumber', 'status')
 
 
 
 class EmailUserSearchSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserAccount
-        fields = ('email', 'full_name', 'address_line_1', 'address_line_2', 'city', 'state', 'postalCode', 'countryCode', 'phoneNumber')
+        fields = ('email', 'full_name', 'address_line_1', 'image', 'description', 'address_line_2', 'city', 'state', 'postalCode', 'countryCode', 'phoneNumber')
 
 
 
