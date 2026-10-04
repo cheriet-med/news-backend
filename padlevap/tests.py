@@ -3,12 +3,13 @@ from datetime import timedelta
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import resolve, reverse
 from django.utils import timezone
 from rest_framework.test import APIClient
 
-from .models import Offer, ScheduledEmail
+from .models import Offer, Post, ScheduledEmail
 
 
 class TriggerEmailsTests(TestCase):
@@ -94,4 +95,23 @@ class OfferEmailSendingTests(TestCase):
         fourth_mock.assert_called_once()
         fifth_mock.assert_called_once()
         sixth_mock.assert_called_once()
+
+
+class PostImageConversionTests(TestCase):
+    def test_post_save_handles_localized_image_fields(self):
+        image = SimpleUploadedFile('sample.jpg', b'fake-image-content', content_type='image/jpeg')
+
+        with patch('padlevap.models.convert_to_avif') as convert_mock:
+            convert_mock.return_value = SimpleUploadedFile(
+                'sample.avif',
+                b'converted-image-content',
+                content_type='image/avif',
+            )
+            post = Post.objects.create(
+                title_en='Example Post',
+                image_en=image,
+            )
+
+        self.assertTrue(post.image_en.name.lower().endswith('.avif'))
+        convert_mock.assert_called_once()
 

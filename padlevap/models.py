@@ -1,11 +1,15 @@
+import logging
+import uuid
+
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, AbstractUser
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
-import uuid
 
 from .util.slugs import make_slug
 from .util.images import convert_to_avif
+
+logger = logging.getLogger(__name__)
 
 
 class UserAccountManager(BaseUserManager):
@@ -221,7 +225,7 @@ class Post(models.Model):
     keyword_5_kab = models.CharField(max_length=1000,blank=True, null=True)
     created_at_meta = models.CharField(max_length=50, blank=True)
     updated_at_meta = models.CharField(max_length=50, blank=True)
-
+    SLUG_LANGS = ['en', 'ar', 'de', 'es', 'fr', 'it', 'nl', 'pt', 'ru', 'sv', 'kab']
 
     def _auto_slugs(self):
         for lang in self.SLUG_LANGS:
@@ -231,13 +235,19 @@ class Post(models.Model):
                 setattr(self, url_field, make_slug(title_val))
 
     def _auto_avif(self):
-        if self.image and not self.image.name.lower().endswith(".avif"):
+        for field_name in [
+            'image_en', 'image_ar', 'image_de', 'image_es', 'image_fr',
+            'image_it', 'image_nl', 'image_pt', 'image_ru', 'image_sv', 'image_kab'
+        ]:
+            image = getattr(self, field_name, None)
+            if not image or not getattr(image, 'name', None):
+                continue
+            if image.name.lower().endswith('.avif'):
+                continue
             try:
-                self.image = convert_to_avif(self.image)
-            except Exception as e:
-                logger.warning("convert_to_avif failed: %s", e)
-
-
+                setattr(self, field_name, convert_to_avif(image))
+            except Exception as exc:
+                logger.warning("convert_to_avif failed for %s: %s", field_name, exc)
 
     def save(self, *args, **kwargs):
         self._auto_avif()
