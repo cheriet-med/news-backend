@@ -9,6 +9,7 @@ from .models import *
 from .serializers import *
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import mixins
 from rest_framework import generics
 from rest_framework import status
@@ -317,24 +318,25 @@ class EmailLetterid(APIView):
 # show user
 
 class UserDetailsView(APIView):
-    #permission_classes = [IsAuthenticated]  # Ensure the user is authenticated
+    authentication_classes = [JWTAuthentication, TokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = request.user  # Get the authenticated user
+        user = request.user
         user_data = {
             "email": user.email,
             "id": user.id,
             "is_active": user.is_active,
             "is_staff": user.is_staff,
-            "is_superuser":user.is_superuser,
-            "full_name":user.full_name,
-            "address_line_1":user.address_line_1,
-            "address_line_2":user.address_line_2,
-            "city":user.city,
-            "state":user.state,
-            "postalCode":user.postalCode,
-            "countryCode":user.countryCode,
-            "phoneNumber":user.phoneNumber,
+            "is_superuser": user.is_superuser,
+            "full_name": user.full_name,
+            "address_line_1": user.address_line_1,
+            "address_line_2": user.address_line_2,
+            "city": user.city,
+            "state": user.state,
+            "postalCode": user.postalCode,
+            "countryCode": user.countryCode,
+            "phoneNumber": user.phoneNumber,
         }
         return Response(user_data)
 

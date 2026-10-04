@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-from django.urls import reverse
+from django.urls import resolve, reverse
 from django.utils import timezone
 from rest_framework.test import APIClient
 
@@ -38,6 +38,32 @@ class TriggerEmailsTests(TestCase):
         client.refresh_from_db()
         self.assertTrue(client.welcome_sent)
         self.assertFalse(client.is_completed)
+
+
+class OfferRouteTests(TestCase):
+    def test_offerid_route_matches_trailing_slash(self):
+        match = resolve('/offerid/1/')
+        self.assertEqual(match.func.__name__, 'Offerid')
+        self.assertEqual(match.kwargs['pk'], 1)
+
+
+class UserDetailsEndpointTests(TestCase):
+    def test_user_details_requires_authentication(self):
+        response = self.client.get('/api/user/')
+        self.assertEqual(response.status_code, 401)
+
+    def test_user_details_returns_profile_for_authenticated_user(self):
+        user = get_user_model().objects.create_user(
+            email='profile@example.com',
+            password='secret123',
+            full_name='Profile User',
+        )
+        client = APIClient()
+        client.force_authenticate(user=user)
+        response = client.get('/api/user/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['email'], 'profile@example.com')
+        self.assertEqual(response.json()['full_name'], 'Profile User')
 
 
 class OfferEmailSendingTests(TestCase):
